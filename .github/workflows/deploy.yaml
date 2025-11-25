@@ -31,12 +31,12 @@ jobs:
       - name: Upload Docker image tar to remote server
         uses: easingthemes/ssh-deploy@main
         with:
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          host: ${{ secrets.SSH_HOST }}
-          port: ${{ secrets.SSH_PORT }}
-          username: ${{ secrets.SSH_USER }}
-          source: "app-image.tar"
-          target: ${{ secrets.REMOTE_TARGET }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          REMOTE_HOST: ${{ secrets.SSH_HOST }}
+          REMOTE_USER: ${{ secrets.SSH_USER }}
+          REMOTE_PORT: ${{ secrets.SSH_PORT }}
+          SOURCE: "app-image.tar"
+          TARGET: ${{ secrets.REMOTE_TARGET }}
       
       # 步骤6：在远程服务器上加载Docker镜像
       - name: Load Docker image on remote server
