@@ -14,14 +14,14 @@ env:
 
 jobs:
   build-and-push:
-    name: 1. Build and Push Go Image to GHCR
+    name: '1. Build and Push Go Image to GHCR'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write # 必须要有 packages: write 权限才能推送 GHCR
 
     steps:
-      - name: Checkout Code
+      - name: 'Checkout Code'
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -31,7 +31,7 @@ jobs:
         # 提取标签名作为版本号，例如 release-v2.0.0 -> v2.0.0
         run: echo "TAG_VERSION=$(echo ${{ github.ref_name }} | sed 's/release-//')" >> $GITHUB_OUTPUT
 
-      - name: Login to GitHub Container Registry (GHCR)
+      - name: 'Login to GitHub Container Registry (GHCR)'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -39,7 +39,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and Push Docker Image
+      - name: 'Build and Push Docker Image'
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -52,16 +52,16 @@ jobs:
           cache-to: type=gha,mode=max
 
   deploy:
-    name: 2. Deploy to CentOS Server
+    name: '2. Deploy to CentOS Server'
     needs: build-and-push # 确保构建成功后才进行部署
     runs-on: ubuntu-latest
 
     steps:
-      - name: Get Tag Name (Image Version)
+      - name: 'Get Tag Name (Image Version)'
         id: get_tag
         run: echo "TAG_VERSION=$(echo ${{ github.ref_name }} | sed 's/release-//')" >> $GITHUB_OUTPUT
 
-      - name: Deploy via SSH to Server
+      - name: 'Deploy via SSH to Server'
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SSH_HOST }}
