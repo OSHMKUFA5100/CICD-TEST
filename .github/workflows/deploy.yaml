@@ -39,14 +39,14 @@ jobs:
           TARGET: ${{ secrets.REMOTE_TARGET }}
       
       # 步骤6：在远程服务器上加载Docker镜像
-      - name: Load Docker image on remote server
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd ${{ secrets.REMOTE_TARGET }}
-            docker load -i app-image.tar
-            # 可选：运行容器
-            # docker run -d -p 80:80 app:${{ github.ref_name }}
+      # - name: Load Docker image on remote server
+      #   uses: appleboy/ssh-action@master
+      #   with:
+      #     REMOTE_HOST: ${{ secrets.SSH_HOST }}
+      #     REMOTE_USER: ${{ secrets.SSH_USER }}
+      #     SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      #     script: |
+      #       cd ${{ secrets.REMOTE_TARGET }}
+      #       docker load -i app-image.tar
+      #       # 可选：运行容器
+      #       # docker run -d -p 80:80 app:${{ github.ref_name }}
