@@ -29,7 +29,7 @@ jobs:
       
       # 步骤5：将tar文件推送到远程服务器
       - name: Upload Docker image tar to remote server
-        uses: easingthemes/ssh-deploy@main
+        uses: appleboy/ssh-action@master
         with:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           REMOTE_HOST: ${{ secrets.SSH_HOST }}
