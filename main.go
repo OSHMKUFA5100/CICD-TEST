@@ -10,5 +10,6 @@ func main() {
 		fmt.Fprintf(w, "Hello, CI/CD with Go!")
 	})
 	fmt.Println("CI/CD-TEST Server listening on port 8080...")
+	fmt.Println("CI/CD-TEST Server listening on port 8080...")
 	http.ListenAndServe(":8080", nil)
 }
