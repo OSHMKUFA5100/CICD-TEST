@@ -20,12 +20,12 @@ jobs:
       # 步骤3：构建Docker镜像
       - name: Build Docker image
         run: |
-          docker build -t my-app:${{ github.ref_name }} .
+          docker build -t app:${{ github.ref_name }} .
       
       # 步骤4：将Docker镜像打包为tar文件
       - name: Save Docker image to tar
         run: |
-          docker save -o app-image.tar my-app:${{ github.ref_name }}
+          docker save -o app-image.tar app:${{ github.ref_name }}
       
       # 步骤5：将tar文件推送到远程服务器
       - name: Upload Docker image tar to remote server
@@ -50,4 +50,4 @@ jobs:
             cd ${{ secrets.REMOTE_TARGET }}
             docker load -i app-image.tar
             # 可选：运行容器
-            # docker run -d -p 80:80 my-app:${{ github.ref_name }}
+            # docker run -d -p 80:80 app:${{ github.ref_name }}
