@@ -31,12 +31,10 @@ jobs:
       - name: Upload Docker image tar to remote server
         uses: appleboy/ssh-action@master
         with:
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           port: ${{ secrets.SSH_PORT }}
-          source: "app-image.tar"
-          target: ${{ secrets.REMOTE_TARGET }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             mkdir -p ${{ secrets.REMOTE_TARGET }}
             rsync -avzr --delete --rsync-path="env -i rsync" app-image.tar ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.REMOTE_TARGET }}
