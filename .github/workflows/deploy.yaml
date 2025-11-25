@@ -37,7 +37,9 @@ jobs:
           REMOTE_PORT: ${{ secrets.SSH_PORT }}
           SOURCE: "app-image.tar"
           TARGET: ${{ secrets.REMOTE_TARGET }}
-      
+          script: |
+            mkdir -p ${{ secrets.REMOTE_TARGET }}
+            rsync -avzr --delete --rsync-path="env -i rsync" app-image.tar ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.REMOTE_TARGET }}
       # 步骤6：在远程服务器上加载Docker镜像
       # - name: Load Docker image on remote server
       #   uses: appleboy/ssh-action@master
