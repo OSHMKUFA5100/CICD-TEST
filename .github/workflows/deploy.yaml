@@ -10,7 +10,7 @@ on:
 env:
   # 使用 GHCR 格式: ghcr.io/GitHub用户名/仓库名称 (必须小写)
   DOCKER_IMAGE_BASE: ghcr.io/${{ github.repository }}
-  CONTAINER_NAME: ci/cd-test-container # 部署到服务器上的容器名称
+  CONTAINER_NAME: ci-cd-test-container # 部署到服务器上的容器名称
 
 jobs:
   build-and-push:
