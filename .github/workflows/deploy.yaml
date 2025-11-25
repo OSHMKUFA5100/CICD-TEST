@@ -67,30 +67,18 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-          # 核心部署命令
           script: |
-            # 1. 设置镜像名称和版本变量
             IMAGE_NAME="${{ env.DOCKER_IMAGE_BASE }}:${{ steps.get_tag.outputs.TAG_VERSION }}"
             CONTAINER_NAME="${{ env.CONTAINER_NAME }}"
-
-            # 2. 【重要】在服务器上登录 GHCR，使用通用的 GHCR 凭证
-            # 这里的用户名和密码需要手动设置一个 GHCR 专用 Token，或者使用 SSH_USER 的凭证
-            # 为了简化，我们假设您在服务器上配置了 pull 权限
-            # 实际生产环境中，您需要在这里用 docker login 登录 GHCR，但为了新手简化，我们跳过这步。
             echo "--- 正在服务器上拉取新镜像: $IMAGE_NAME ---"
             docker pull $IMAGE_NAME
-
-#            echo "--- 停止和删除旧容器 (如果存在) ---"
-#            docker stop $CONTAINER_NAME || true
-#            docker rm $CONTAINER_NAME || true
-#
-#            echo "--- 启动新容器 ---"
-#            docker run -d \
-#              --name $CONTAINER_NAME \
-#              -p 80:8080 \
-#              $IMAGE_NAME
-            
             echo "--- 部署完成！容器 $CONTAINER_NAME 正在运行 ---"
-            
+  #            echo "--- 停止和删除旧容器 (如果存在) ---"
+  #            docker stop $CONTAINER_NAME || true
+  #            docker rm $CONTAINER_NAME || true
+  #            echo "--- 启动新容器 ---"
+  #            docker run -d \
+  #              --name $CONTAINER_NAME \
+  #              -p 80:8080 \
+  #              $IMAGE_NAME
 #            docker image prune -f
