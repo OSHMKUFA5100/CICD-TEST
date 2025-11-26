@@ -57,7 +57,7 @@ jobs:
           
           # 清理临时文件（安全删除）
           rm -f "$PRIVATE_KEY_FILE"
-          
+
       - name: Upload Docker image tar to remote server
         uses: appleboy/ssh-action@master
         with:
@@ -65,6 +65,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          login: true
           script: |
             mkdir -p ${{ secrets.REMOTE_TARGET }}
             rsync -avzr --delete --rsync-path="env -i rsync" app-image.tar ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.REMOTE_TARGET }}
