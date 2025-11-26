@@ -1,62 +1,34 @@
-name: Build and Deploy Docker Image
-
+name: "构建和部署到远程服务器"
+# 当有新的以release-开头的tag发布时，触发构建和部署
 on:
   push:
     tags:
-      - 'release-*'  # 匹配以xxx开头的标签，如xxx1.0, xxx2.0.1
+      - 'release-*'
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      # 步骤1：检出代码
-      - name: " - 检出代码到 Runner 工作区"
+      - name: " - 检出代码"
         uses: actions/checkout@v4
-      
-      # 步骤2：设置Docker环境
-#      - name: " - 设置Docker环境"
-#        uses: docker/setup-buildx-action@v2
-      
-      # 步骤3：构建Docker镜像
+
+      - name: " - 截取版本号"
+        id: get_version
+        run: |
+          FULL_TAG=$(git describe --tags --abbrev=0)
+          VERSION=${FULL_TAG#release-}
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "IMAGE_TAG=${{ secrets.DOCKER_IMAGE_NAME }}:${VERSION}" >> $GITHUB_OUTPUT
+
       - name: " - 构建Docker镜像"
         run: |
-          docker build -t app:${{ github.ref_name }} .
-      
-      # 步骤4：将Docker镜像打包为tar文件
+          docker build -t ${{ steps.get_version.outputs.IMAGE_TAG }} .
+
       - name: " - 将Docker镜像打包为tar文件"
+        id: packaged_image
         run: |
-          docker save -o app-image.tar app:${{ github.ref_name }}
-
-      # 步骤5：添加远程主机密钥到known_hosts（永久解决方案）
-#      - name: "5. 添加远程主机密钥到known_hosts"
-#        run: |
-#          mkdir -p ~/.ssh
-#          ssh-keyscan -t rsa ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-#          chmod 644 ~/.ssh/known_hosts
-
-      # 步骤6：将tar文件推送到远程服务器
-#      - name: Debug SSH connection
-#        run: |
-#          # 将Secrets的值赋给bash变量
-#          SSH_PRIVATE_KEY="${{ secrets.SSH_PRIVATE_KEY }}"
-#
-#          # 打印前50个字符
-#          echo "SSH_PRIVATE_KEY (first 50 chars): ${SSH_PRIVATE_KEY:0:50}"
-#          echo "SSH_PRIVATE_KEY length: ${#SSH_PRIVATE_KEY}"
-#          echo "SSH_PRIVATE_KEY format:"
-#          echo "$SSH_PRIVATE_KEY" | head -n 1
-#
-#          # 创建临时私钥文件（关键修复）
-#          PRIVATE_KEY_FILE=$(mktemp)
-#          echo "$SSH_PRIVATE_KEY" > "$PRIVATE_KEY_FILE"
-#          chmod 600 "$PRIVATE_KEY_FILE"
-#
-#          # 测试SSH连接（使用临时文件）
-#          echo "Testing SSH connection..."
-#          ssh -o StrictHostKeyChecking=no -i "$PRIVATE_KEY_FILE" -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo 'SSH connection successful!'"
-#
-#          # 清理临时文件（安全删除）
-#          rm -f "$PRIVATE_KEY_FILE"
+          IMAGE_TAR_NAME="${{ secrets.DOCKER_IMAGE_NAME }}-${{ steps.get_version.outputs.VERSION }}.tar"
+          docker save ${{ steps.get_version.outputs.IMAGE_TAG }} -o ${IMAGE_TAR_NAME}
 
       - name: " - 使用SCP上传到远程服务器"
         uses: appleboy/scp-action@v1.0.0
@@ -65,7 +37,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: app-image.tar
+          source: ${{ steps.packaged_image.outputs.IMAGE_TAR_NAME }}
           target: ${{ secrets.REMOTE_TARGET}}
 
       - name: " - 在远程服务器上加载 Docker 镜像"
@@ -76,18 +48,6 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            IMAGE_FILE="/zhang/app-image.tar"
+            IMAGE_FILE="${{ secrets.REMOTE_TARGET }}/${{ steps.packaged_image.outputs.IMAGE_TAR_NAME }}"
             echo "==> 正在加载 Docker 镜像: ${IMAGE_FILE}"
             docker load -i ${IMAGE_FILE}
-      # 步骤7：在远程服务器上加载Docker镜像
-      # - name: Load Docker image on remote server
-      #   uses: appleboy/ssh-action@master
-      #   with:
-      #     REMOTE_HOST: ${{ secrets.SSH_HOST }}
-      #     REMOTE_USER: ${{ secrets.SSH_USER }}
-      #     SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-      #     script: |
-      #       cd ${{ secrets.REMOTE_TARGET }}
-      #       docker load -i app-image.tar
-      #       # 可选：运行容器
-      #       # docker run -d -p 80:80 app:${{ github.ref_name }}
