@@ -65,7 +65,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          login: true
+          request_pty: true
           script: |
             mkdir -p ${{ secrets.REMOTE_TARGET }}
             rsync -avzr --delete --rsync-path="env -i rsync" app-image.tar ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.REMOTE_TARGET }}
