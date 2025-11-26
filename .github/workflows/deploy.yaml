@@ -40,20 +40,24 @@ jobs:
           # 将Secrets的值赋给bash变量
           SSH_PRIVATE_KEY="${{ secrets.SSH_PRIVATE_KEY }}"
           
-          # 打印前50个字符（正确语法）
+          # 打印前50个字符
           echo "SSH_PRIVATE_KEY (first 50 chars): ${SSH_PRIVATE_KEY:0:50}"
-          
-          # 打印长度（正确语法）
           echo "SSH_PRIVATE_KEY length: ${#SSH_PRIVATE_KEY}"
-          
-          # 打印格式（正确语法）
           echo "SSH_PRIVATE_KEY format:"
           echo "$SSH_PRIVATE_KEY" | head -n 1
           
-          # 测试SSH连接
+          # 创建临时私钥文件（关键修复）
+          PRIVATE_KEY_FILE=$(mktemp)
+          echo "$SSH_PRIVATE_KEY" > "$PRIVATE_KEY_FILE"
+          chmod 600 "$PRIVATE_KEY_FILE"
+          
+          # 测试SSH连接（使用临时文件）
           echo "Testing SSH connection..."
-          ssh -o StrictHostKeyChecking=no -i /dev/stdin -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo 'SSH connection successful!'" <<EOF  $SSH_PRIVATE_KEY  EOF
-
+          ssh -o StrictHostKeyChecking=no -i "$PRIVATE_KEY_FILE" -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo 'SSH connection successful!'"
+          
+          # 清理临时文件（安全删除）
+          rm -f "$PRIVATE_KEY_FILE"
+          
       - name: Upload Docker image tar to remote server
         uses: appleboy/ssh-action@master
         with:
