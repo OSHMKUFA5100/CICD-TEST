@@ -29,6 +29,7 @@ jobs:
         run: |
           IMAGE_TAR_NAME="${{ secrets.DOCKER_IMAGE_NAME }}-${{ steps.get_version.outputs.VERSION }}.tar"
           docker save ${{ steps.get_version.outputs.IMAGE_TAG }} -o ${IMAGE_TAR_NAME}
+          echo "IMAGE_TAR_NAME=${IMAGE_TAR_NAME}" >> $GITHUB_OUTPUT
 
       - name: " - 使用SCP上传到远程服务器"
         uses: appleboy/scp-action@v1.0.0
