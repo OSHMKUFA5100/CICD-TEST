@@ -10,29 +10,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # 步骤1：检出代码
-      - name: Checkout code
+      - name: " - 检出代码到 Runner 工作区"
         uses: actions/checkout@v4
       
       # 步骤2：设置Docker环境
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+#      - name: " - 设置Docker环境"
+#        uses: docker/setup-buildx-action@v2
       
       # 步骤3：构建Docker镜像
-      - name: Build Docker image
+      - name: " - 构建Docker镜像"
         run: |
           docker build -t app:${{ github.ref_name }} .
       
       # 步骤4：将Docker镜像打包为tar文件
-      - name: Save Docker image to tar
+      - name: " - 将Docker镜像打包为tar文件"
         run: |
           docker save -o app-image.tar app:${{ github.ref_name }}
 
       # 步骤5：添加远程主机密钥到known_hosts（永久解决方案）
-      - name: Add remote host key to known_hosts
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -t rsa ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
+#      - name: "5. 添加远程主机密钥到known_hosts"
+#        run: |
+#          mkdir -p ~/.ssh
+#          ssh-keyscan -t rsa ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+#          chmod 644 ~/.ssh/known_hosts
 
       # 步骤6：将tar文件推送到远程服务器
 #      - name: Debug SSH connection
@@ -58,7 +58,7 @@ jobs:
 #          # 清理临时文件（安全删除）
 #          rm -f "$PRIVATE_KEY_FILE"
 
-      - name: Upload Docker image tar to remote server
+      - name: " - 使用SCP上传到远程服务器"
         uses: appleboy/scp-action@v1.0.0
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -68,8 +68,8 @@ jobs:
           source: app-image.tar
           target: ${{ secrets.REMOTE_TARGET}}
 
-      - name: '7. 在服务器上加载 Docker 镜像'
-        uses: appleboy/scp-action@v1.0.0
+      - name: " - 在远程服务器上加载 Docker 镜像"
+        uses: appleboy/ssh-action@v1.2.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
