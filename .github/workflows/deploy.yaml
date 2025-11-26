@@ -59,7 +59,7 @@ jobs:
           rm -f "$PRIVATE_KEY_FILE"
 
       - name: Upload Docker image tar to remote server
-        uses: https://github.com/appleboy/scp-action@v1.0.0
+        uses: appleboy/scp-action@v1.0.0
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
