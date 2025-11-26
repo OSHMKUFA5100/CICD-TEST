@@ -37,16 +37,23 @@ jobs:
       # 步骤6：将tar文件推送到远程服务器
       - name: Debug SSH connection
         run: |
-          echo "SSH_PRIVATE_KEY (first 50 chars):" ${SECRETS.SSH_PRIVATE_KEY:0:50}
-          echo "SSH_PRIVATE_KEY length: ${#SECRETS.SSH_PRIVATE_KEY}"
+          # 将Secrets的值赋给bash变量
+          SSH_PRIVATE_KEY="${{ secrets.SSH_PRIVATE_KEY }}"
+          
+          # 打印前50个字符（正确语法）
+          echo "SSH_PRIVATE_KEY (first 50 chars): ${SSH_PRIVATE_KEY:0:50}"
+          
+          # 打印长度（正确语法）
+          echo "SSH_PRIVATE_KEY length: ${#SSH_PRIVATE_KEY}"
+          
+          # 打印格式（正确语法）
           echo "SSH_PRIVATE_KEY format:"
-          echo ${{ secrets.SSH_PRIVATE_KEY }} | head -n 1
-          echo "SSH user: ${{ secrets.SSH_USER }}"
-          echo "SSH host: ${{ secrets.SSH_HOST }}"
-          echo "SSH port: ${{ secrets.SSH_PORT }}"
-          echo "Remote directory: ${{ secrets.REMOTE_TARGET }}"
+          echo "$SSH_PRIVATE_KEY" | head -n 1
+          
+          # 测试SSH连接
           echo "Testing SSH connection..."
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo 'SSH connection successful!'"
+          ssh -o StrictHostKeyChecking=no -i /dev/stdin -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo 'SSH connection successful!'" <<EOF  $SSH_PRIVATE_KEY  EOF
+
       - name: Upload Docker image tar to remote server
         uses: appleboy/ssh-action@master
         with:
