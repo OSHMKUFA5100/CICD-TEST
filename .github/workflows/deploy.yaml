@@ -37,7 +37,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: ${{ steps.packaged_image.outputs.IMAGE_TAR_NAME }}
+          source: "${{ steps.packaged_image.outputs.IMAGE_TAR_NAME }}"
           target: ${{ secrets.REMOTE_TARGET}}
 
       - name: " - 在远程服务器上加载 Docker 镜像"
